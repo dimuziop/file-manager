@@ -50,10 +50,23 @@ class Cd(dir: String) extends Command {
       }
     }
 
+    @tailrec
+    def collapseRelativeTokens(path: List[String], resultAcc: List[String]): List[String] = {
+      if (path.isEmpty) resultAcc
+      else if(".".equals(path.head)) collapseRelativeTokens(path.tail, resultAcc)
+      else if("..".equals(path.head)) {
+        if(resultAcc.isEmpty) null
+        collapseRelativeTokens(path.tail, resultAcc.init)
+      } else collapseRelativeTokens(path.tail, resultAcc :+ path.head)
+    }
+
     // 1. tokens
     val tokens: List[String] = path.substring(1).split(Directory.SEPARATOR).toList
 
+    // 1.5 eliminate or collapse rel tks
+    val newTokens = collapseRelativeTokens(tokens, List())
+    if (newTokens == null) null
     //2. navigate to the correct entry
-    findEntryHelper(root, tokens)
+    else findEntryHelper(root, newTokens)
   }
 }
