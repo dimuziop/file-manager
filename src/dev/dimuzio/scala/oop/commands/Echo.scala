@@ -1,5 +1,6 @@
 package dev.dimuzio.scala.oop.commands
 
+import dev.dimuzio.scala.oop.files.{Directory, File}
 import dev.dimuzio.scala.oop.filesystem.State
 
 import scala.annotation.tailrec
@@ -32,11 +33,41 @@ case class Echo(args: List[String]) extends Command {
       if (currentIndex >= topIndex) accumulator
       else createContentHelper(currentIndex + 1, accumulator + " " + args(currentIndex))
     }
+
     createContentHelper(0, "")
   }
 
   def doEcho(state: State, contents: String, filename: String, append: Boolean): State = {
-    ???
+    if (filename.contains(Directory.SEPARATOR))
+      state.setMessage("Echo: filename must not contain separators")
+    else {
+      val newRoot: Directory = getRootAfterEcho(state.root, state.wd.getAllFoldersInPath :+ filename, contents, append)
+      if (newRoot == state.root)
+        state.setMessage(filename + ": not such file")
+      else
+        State(newRoot, newRoot.findDescendant(state.wd.getAllFoldersInPath))
+    }
+  }
+
+  def getRootAfterEcho(currentDir: Directory, path: List[String], contents: String, append: Boolean): Directory = {
+    if (path.isEmpty) currentDir
+    else if (path.tail.isEmpty) {
+      val dirEntry = currentDir.findEntry(path.head)
+      if (dirEntry == null) currentDir.addEntry(new File(currentDir.path, path.head, contents))
+      else if (dirEntry.isDirectory) currentDir
+      else if (append) currentDir.replaceEntry(path.head, dirEntry.asFile.appendContents(contents))
+      else
+        currentDir.replaceEntry(path.head, dirEntry.asFile.setContents(contents))
+    }
+    else {
+      val nextDirectory = currentDir.findEntry(path.head).asDirectory
+      val newNextDirectory = getRootAfterEcho(nextDirectory, path.tail, contents, append)
+
+      if(newNextDirectory == nextDirectory) currentDir
+      else currentDir.replaceEntry(path.head, newNextDirectory)
+
+    }
+
   }
 
 }
