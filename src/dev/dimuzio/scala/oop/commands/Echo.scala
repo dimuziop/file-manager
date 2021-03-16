@@ -10,7 +10,7 @@ import scala.annotation.tailrec
  * Date: 16/3/21
  * Time: 14:27
  */
-case class Echo(args: List[String]) extends Command {
+class Echo(args: List[String]) extends Command {
 
   override def apply(state: State): State = {
     if (args.isEmpty) state

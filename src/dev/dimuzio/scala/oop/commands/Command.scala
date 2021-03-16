@@ -7,9 +7,9 @@ import dev.dimuzio.scala.oop.filesystem.State
  * Date: 8/3/21
  * Time: 05:33
  */
-trait Command {
+trait Command extends (State => State){
 
-  def apply(state: State): State
+  //def apply(state: State): State
 
 }
 
@@ -22,6 +22,7 @@ object Command {
   val CD = "cd"
   val RM = "rm"
   val ECHO = "echo"
+  val CAT = "cat"
 
   def emptyCommand: Command = new Command {
     override def apply(state: State): State = state
@@ -34,6 +35,10 @@ object Command {
   def from(input: String): Command = {
     val tokens: Array[String] = input.split(" ")
     if (input.isEmpty || tokens.isEmpty) emptyCommand
+    /*else tokens(0) match {
+      case MKDIR => if (tokens.length < 2) incompleteCommand(MKDIR)
+      else Mkdir(tokens(1))
+    }*/
     else if (MKDIR.equals(tokens(0))) {
       if (tokens.length < 2) incompleteCommand(MKDIR)
       else Mkdir(tokens(1))
@@ -53,6 +58,9 @@ object Command {
     } else if (ECHO.equals(tokens(0))) {
       if (tokens.length < 2) incompleteCommand(ECHO)
       else new Echo(tokens.tail.toList)
+    } else if (CAT.equals(tokens(0))) {
+      if (tokens.length < 2) incompleteCommand(CAT)
+      else new Cat(tokens(1))
     }
     else new UnknownCommand
   }

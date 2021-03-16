@@ -8,7 +8,7 @@ import dev.dimuzio.scala.oop.filesystem.FilesystemException
  * Date: 10/3/21
  * Time: 01:39
  */
-class File(override val parentPath: String, override val name: String, contents: String) extends DirEntry(parentPath, name) {
+class File(override val parentPath: String, override val name: String, val contents: String) extends DirEntry(parentPath, name) {
 
 
   override def asDirectory: Directory =
@@ -16,7 +16,7 @@ class File(override val parentPath: String, override val name: String, contents:
 
   override def getType: String = "File"
 
-  override def asFile: File = ???
+  override def asFile: File = this
 
   override def isDirectory: Boolean = false
 

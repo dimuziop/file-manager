@@ -13,13 +13,19 @@ import java.util.Scanner
 object Filesystem  extends App {
 
   val root = Directory.ROOT
-  var state = State(root, root)
+
+  io.Source.stdin.getLines().foldLeft(State(root, root))((currentState: State, newLine: String) => {
+    currentState.show()
+    Command.from(newLine).apply(currentState)
+  })
+
+  /*var state = State(root, root)
   val scanner = new Scanner(System.in)
 
   while(true) {
     state.show()
     val input = scanner.nextLine()
     state = Command.from(input).apply(state)
-  }
+  }*/
 
 }
